@@ -1,6 +1,12 @@
 [package]
-name = "common"
-version = "0.1.0"
 authors = ["Jorge Aparicio <jorge@japaric.io>"]
+categories = ["embedded", "hardware-support", "no-std"]
+description = "Abstractions common to microcontrollers"
+documentation = "https://docs.rs/mcu"
+keywords = ["mcu", "register", "peripheral", "interrupt"]
+license = "MIT OR Apache-2.0"
+name = "mcu"
+repository = "https://github.com/japaric/mcu"
+version = "0.1.0"
 
 [dependencies]

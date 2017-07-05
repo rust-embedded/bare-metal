@@ -1,10 +1,12 @@
+//! Abstractions common to microcontrollers
+
+#![deny(missing_docs)]
+#![deny(warnings)]
 #![feature(const_fn)]
 #![no_std]
 
-use core::cell::UnsafeCell;
 use core::marker::PhantomData;
-
-pub mod ctxt;
+use core::cell::UnsafeCell;
 
 /// A peripheral
 #[derive(Debug)]
@@ -46,6 +48,10 @@ pub struct CriticalSection {
 }
 
 impl CriticalSection {
+    /// Creates a critical section token
+    ///
+    /// This method is meant to be used to create safe abstractions rather than
+    /// meant to be directly used in applications.
     pub unsafe fn new() -> Self {
         CriticalSection { _0: () }
     }
@@ -65,22 +71,22 @@ impl<T> Mutex<T> {
 
 impl<T> Mutex<T> {
     /// Borrows the data for the duration of the critical section
-    pub fn borrow<'cs>(&self, _ctxt: &'cs CriticalSection) -> &'cs T {
+    pub fn borrow<'cs>(&self, _cs: &'cs CriticalSection) -> &'cs T {
         unsafe { &*self.inner.get() }
     }
 }
 
-// NOTE `Mutex` can be used as a channel so, the protected data must be `Send`
-// to prevent sending non-Sendable stuff (e.g. interrupt tokens) across
-// different execution contexts (e.g. interrupts)
+/// Interrupt number
+pub unsafe trait Nr {
+    /// Returns the number associated with an interrupt
+    fn nr(&self) -> u8;
+}
+
+// NOTE A `Mutex` can be used as a channel so the protected data must be `Send`
+// to prevent sending non-Sendable stuff (e.g. access tokens) across different
+// execution contexts (e.g. interrupts)
 unsafe impl<T> Sync for Mutex<T>
 where
     T: Send,
 {
-}
-
-/// Interrupt number
-pub unsafe trait Nr {
-    /// Returns the number associated with this interrupt
-    fn nr(&self) -> u8;
 }

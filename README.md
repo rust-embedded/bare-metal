@@ -1,7 +1,6 @@
-# `common`
+# `mcu`
 
-> Bits extracted from the `cortex-m` crate that may be reusable for other
-> architecture crates
+> Abstractions common to microcontrollers
 
 ## License
 
