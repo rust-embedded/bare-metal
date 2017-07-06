@@ -1,11 +1,10 @@
-//! Abstractions common to microcontrollers
+//! Abstractions common to bare metal systems
 
 #![deny(missing_docs)]
 #![deny(warnings)]
 #![feature(const_fn)]
 #![no_std]
 
-use core::marker::PhantomData;
 use core::cell::UnsafeCell;
 
 /// A peripheral
@@ -14,8 +13,7 @@ pub struct Peripheral<T>
 where
     T: 'static,
 {
-    address: usize,
-    _marker: PhantomData<&'static mut T>,
+    address: *mut T,
 }
 
 impl<T> Peripheral<T> {
@@ -23,10 +21,7 @@ impl<T> Peripheral<T> {
     ///
     /// `address` is the base address of the register block
     pub const unsafe fn new(address: usize) -> Self {
-        Peripheral {
-            address: address,
-            _marker: PhantomData,
-        }
+        Peripheral { address: address as *mut T }
     }
 
     /// Borrows the peripheral for the duration of a critical section
@@ -40,7 +35,7 @@ impl<T> Peripheral<T> {
     }
 }
 
-/// Critical section context
+/// Critical section token
 ///
 /// Indicates that you are executing code within a critical section
 pub struct CriticalSection {
