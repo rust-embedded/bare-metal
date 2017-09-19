@@ -2,7 +2,7 @@
 
 #![deny(missing_docs)]
 #![deny(warnings)]
-#![feature(const_fn)]
+#![feature(const_fn,const_unsafe_cell_new)]
 #![no_std]
 
 use core::cell::UnsafeCell;
