@@ -9,4 +9,6 @@ name = "bare-metal"
 repository = "https://github.com/japaric/bare-metal"
 version = "0.1.1"
 
-[dependencies]
+[features]
+default = ["const-fn"]
+const-fn = []

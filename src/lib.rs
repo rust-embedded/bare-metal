@@ -2,7 +2,7 @@
 
 #![deny(missing_docs)]
 #![deny(warnings)]
-#![feature(const_fn,const_unsafe_cell_new)]
+#![cfg_attr(feature = "const-fn", feature(const_fn, const_unsafe_cell_new))]
 #![no_std]
 
 use core::cell::UnsafeCell;
@@ -20,8 +20,21 @@ impl<T> Peripheral<T> {
     /// Creates a new peripheral
     ///
     /// `address` is the base address of the register block
+    #[cfg(feature = "const-fn")]
     pub const unsafe fn new(address: usize) -> Self {
-        Peripheral { address: address as *mut T }
+        Peripheral {
+            address: address as *mut T,
+        }
+    }
+
+    /// Creates a new peripheral
+    ///
+    /// `address` is the base address of the register block
+    #[cfg(not(feature = "const-fn"))]
+    pub unsafe fn new(address: usize) -> Self {
+        Peripheral {
+            address: address as *mut T,
+        }
     }
 
     /// Borrows the peripheral for the duration of a critical section
@@ -59,8 +72,19 @@ pub struct Mutex<T> {
 
 impl<T> Mutex<T> {
     /// Creates a new mutex
+    #[cfg(feature = "const-fn")]
     pub const fn new(value: T) -> Self {
-        Mutex { inner: UnsafeCell::new(value) }
+        Mutex {
+            inner: UnsafeCell::new(value),
+        }
+    }
+
+    /// Creates a new mutex
+    #[cfg(not(feature = "const-fn"))]
+    pub fn new(value: T) -> Self {
+        Mutex {
+            inner: UnsafeCell::new(value),
+        }
     }
 }
 
