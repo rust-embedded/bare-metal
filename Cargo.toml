@@ -7,7 +7,7 @@ keywords = ["bare-metal", "register", "peripheral", "interrupt"]
 license = "MIT OR Apache-2.0"
 name = "bare-metal"
 repository = "https://github.com/japaric/bare-metal"
-version = "0.1.1"
+version = "0.1.2"
 
 [features]
 default = ["const-fn"]

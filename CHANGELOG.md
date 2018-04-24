@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [v0.1.2] - 2018-04-24
+
+### Added
+
+- An opt-out "const-fn" Cargo feature. When this feature is disabled this crate compiles on stable.
+
 ## [v0.1.1] - 2017-09-19
 
 ### Fixed
