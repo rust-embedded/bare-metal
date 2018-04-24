@@ -1,10 +1,10 @@
 set -euxo pipefail
 
 main() {
-    cargo check --target $TARGET
+    cargo check --target $TARGET --no-default-features
 
     if [ $TRAVIS_RUST_VERSION = nightly ]; then
-        cargo check --features const-fn --target $TARGET
+        cargo check --target $TARGET
     fi
 }
 
