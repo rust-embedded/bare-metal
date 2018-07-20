@@ -93,6 +93,11 @@ impl<T> Mutex<T> {
     pub fn borrow<'cs>(&self, _cs: &'cs CriticalSection) -> &'cs T {
         unsafe { &*self.inner.get() }
     }
+
+    /// Borrows the data mutably for the duration of the critical section
+    pub fn borrow_mut<'cs>(&self, _cs: &'cs CriticalSection) -> &'cs mut T {
+        unsafe { &mut *self.inner.get() }
+    }
 }
 
 /// Interrupt number
