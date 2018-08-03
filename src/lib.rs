@@ -2,7 +2,10 @@
 
 #![deny(missing_docs)]
 #![deny(warnings)]
-#![cfg_attr(feature = "const-fn", feature(const_fn, const_unsafe_cell_new))]
+#![cfg_attr(
+    feature = "const-fn",
+    feature(const_fn, const_unsafe_cell_new)
+)]
 #![no_std]
 
 use core::cell::UnsafeCell;
@@ -90,10 +93,19 @@ impl<T> Mutex<T> {
 
 impl<T> Mutex<T> {
     /// Borrows the data for the duration of the critical section
-    pub fn borrow<'cs>(&self, _cs: &'cs CriticalSection) -> &'cs T {
+    pub fn borrow<'cs>(&'cs self, _cs: &'cs CriticalSection) -> &'cs T {
         unsafe { &*self.inner.get() }
     }
 }
+
+/// ``` compile_fail
+/// fn bad(cs: &bare_metal::CriticalSection) -> &u32 {
+///     let x = bare_metal::Mutex::new(42u32);
+///     x.borrow(cs)
+/// }
+/// ```
+#[allow(dead_code)]
+const GH_6: () = ();
 
 /// Interrupt number
 pub unsafe trait Nr {
@@ -104,8 +116,4 @@ pub unsafe trait Nr {
 // NOTE A `Mutex` can be used as a channel so the protected data must be `Send`
 // to prevent sending non-Sendable stuff (e.g. access tokens) across different
 // execution contexts (e.g. interrupts)
-unsafe impl<T> Sync for Mutex<T>
-where
-    T: Send,
-{
-}
+unsafe impl<T> Sync for Mutex<T> where T: Send {}
