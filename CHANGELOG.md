@@ -5,7 +5,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-## [v0.2.0] - 2018-05-10
+## [v0.2.1] - 2018-08-03
+
+### Fixed
+
+- Soundness issue where it was possible to borrow the contents of a Mutex for longer than the
+  lifetime of the Mutex.
+
+## [v0.2.0] - 2018-05-10 - YANKED
+
+YANKED due to a soundness issue: see v0.2.1 for details
 
 ### Changed
 
