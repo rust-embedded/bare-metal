@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [v0.2.2] - 2018-08-17
+
+### Fixed
+
+- A compilation error when using a recent nightly while the "const-fn" feature was enabled.
+
 ## [v0.2.1] - 2018-08-03
 
 ### Fixed
@@ -38,7 +44,9 @@ YANKED due to a soundness issue: see v0.2.1 for details
 
 - Initial release
 
-[Unreleased]: https://github.com/japaric/bare-metal/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/japaric/bare-metal/compare/v0.2.2...HEAD
+[v0.2.2]: https://github.com/japaric/bare-metal/compare/v0.2.1...v0.2.2
+[v0.2.1]: https://github.com/japaric/bare-metal/compare/v0.2.0...v0.2.1
 [v0.2.0]: https://github.com/japaric/bare-metal/compare/v0.1.2...v0.2.0
 [v0.1.2]: https://github.com/japaric/bare-metal/compare/v0.1.1...v0.1.2
 [v0.1.1]: https://github.com/japaric/bare-metal/compare/v0.1.0...v0.1.1
