@@ -2,7 +2,7 @@
 
 #![deny(missing_docs)]
 #![deny(warnings)]
-#![cfg_attr(feature = "const-fn", feature(const_fn, const_unsafe_cell_new))]
+#![cfg_attr(feature = "const-fn", feature(const_fn))]
 #![no_std]
 
 use core::cell::UnsafeCell;
