@@ -69,6 +69,12 @@ impl CriticalSection {
 }
 
 /// A "mutex" based on critical sections
+///
+/// # Safety
+///
+/// **This Mutex is only safe on single-core systems.**
+///
+/// On multi-core systems, a `CriticalSection` **is not sufficient** to ensure exclusive access.
 pub struct Mutex<T> {
     inner: UnsafeCell<T>,
 }
