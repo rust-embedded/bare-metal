@@ -3,7 +3,7 @@
 #![deny(missing_docs)]
 #![deny(warnings)]
 #![cfg_attr(
-    feature = "const-fn",
+    all(feature = "const-fn", unstable_const_fn),
     feature(const_fn)
 )]
 #![no_std]

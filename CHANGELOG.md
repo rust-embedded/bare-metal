@@ -5,6 +5,16 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [v0.2.4] - 2018-10-30
+
+### Added
+
+- Note in the documentation that `Mutex` is not memory safe in multi-core systems.
+
+### Changed
+
+- The `const-fn` feature can now be used on 1.31-beta and will also work on stable 1.31.
+
 ## [v0.2.3] - 2018-08-17
 
 ### Fixed
