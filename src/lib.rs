@@ -8,7 +8,10 @@
 )]
 #![no_std]
 
-use core::cell::UnsafeCell;
+use core::{
+    cell::{RefCell, UnsafeCell},
+    ops::{Deref, DerefMut},
+};
 
 /// A peripheral
 #[derive(Debug)]
@@ -123,3 +126,61 @@ pub unsafe trait Nr {
 // to prevent sending non-Sendable stuff (e.g. access tokens) across different
 // execution contexts (e.g. interrupts)
 unsafe impl<T> Sync for Mutex<T> where T: Send {}
+
+/// A shared value wrapper
+///
+/// Uses `Mutex` internally, so the same caveats about multi-core systems apply
+pub struct Shared<T> {
+    inner: Mutex<RefCell<Option<T>>>,
+}
+
+impl<T> Shared<T> {
+    /// Creates a new empty shared value
+    #[cfg(feature = "const-fn")]
+    pub const fn new() -> Self {
+        Shared {
+            inner: Mutex::new(RefCell::new(None)),
+        }
+    }
+
+    /// Creates a new empty shared value
+    #[cfg(not(feature = "const-fn"))]
+    pub fn new() -> Self {
+        Shared {
+            inner: Mutex::new(RefCell::new(None)),
+        }
+    }
+
+    /// Loads new contents into a shared value, if the value already contained
+    /// data the old value is returned
+    pub fn load(&self, cs: &CriticalSection, value: T) -> Option<T> {
+        self.inner.borrow(cs).replace(Some(value))
+    }
+
+    /// Attempts to get a reference to the data in the shared value, may fail
+    /// if there are current mutable references, or if the value is empty
+    pub fn get<'a>(&'a self, cs: &'a CriticalSection) -> Option<core::cell::Ref<'a, T>> {
+        self.inner
+            .borrow(cs)
+            .try_borrow()
+            .ok()
+            .and_then(|inner| match inner.deref() {
+                Some(_) => Some(core::cell::Ref::map(inner, |v| v.as_ref().unwrap())),
+                None => None,
+            })
+    }
+
+    /// Attempts to get a reference to the data in the shared value, may fail
+    /// if there are current mutable or immutable references, or if the value
+    /// is empty
+    pub fn get_mut<'a>(&'a self, cs: &'a CriticalSection) -> Option<core::cell::RefMut<'a, T>> {
+        self.inner
+            .borrow(cs)
+            .try_borrow_mut()
+            .ok()
+            .and_then(|mut inner| match inner.deref_mut() {
+                Some(_) => Some(core::cell::RefMut::map(inner, |v| v.as_mut().unwrap())),
+                None => None,
+            })
+    }
+}
