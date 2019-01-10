@@ -150,7 +150,7 @@ impl<T> Shared<T> {
 
     /// Loads new contents into a shared value, if the value already contained
     /// data the old value is returned
-    pub fn load(&self, cs: &CriticalSection, value: T) -> Option<T> {
+    pub fn put(&self, cs: &CriticalSection, value: T) -> Option<T> {
         self.inner.borrow(cs).replace(Some(value))
     }
 
