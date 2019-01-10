@@ -8,10 +8,7 @@
 )]
 #![no_std]
 
-use core::{
-    cell::{RefCell, UnsafeCell},
-    ops::{Deref, DerefMut},
-};
+use core::cell::{RefCell, UnsafeCell};
 
 /// A peripheral
 #[derive(Debug)]
@@ -164,10 +161,8 @@ impl<T> Shared<T> {
             .borrow(cs)
             .try_borrow()
             .ok()
-            .and_then(|inner| match inner.deref() {
-                Some(_) => Some(core::cell::Ref::map(inner, |v| v.as_ref().unwrap())),
-                None => None,
-            })
+            .filter(|inner| inner.is_some())
+            .map(|inner| core::cell::Ref::map(inner, |v| v.as_ref().unwrap()))
     }
 
     /// Attempts to get a reference to the data in the shared value, may fail
@@ -178,9 +173,7 @@ impl<T> Shared<T> {
             .borrow(cs)
             .try_borrow_mut()
             .ok()
-            .and_then(|mut inner| match inner.deref_mut() {
-                Some(_) => Some(core::cell::RefMut::map(inner, |v| v.as_mut().unwrap())),
-                None => None,
-            })
+            .filter(|inner| inner.is_some())
+            .map(|inner| core::cell::RefMut::map(inner, |v| v.as_mut().unwrap()))
     }
 }
