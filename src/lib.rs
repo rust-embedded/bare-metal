@@ -98,7 +98,11 @@ impl<T> Mutex<T> {
 }
 
 impl<T> Mutex<T> {
-    /// Borrows the data for the duration of the critical section
+    /// Borrows the data for the duration of the critical section.
+    ///
+    /// Unlike `std::sync::Mutex`, this can only allow *immutable* access to the stored value. This
+    /// is required to ensure safety, since `borrow` could be called multiple times in a row, which
+    /// would create aliasing mutable references.
     pub fn borrow<'cs>(&'cs self, _cs: &'cs CriticalSection) -> &'cs T {
         unsafe { &*self.inner.get() }
     }
