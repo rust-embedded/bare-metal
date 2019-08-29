@@ -2,6 +2,8 @@
 
 > Abstractions common to bare metal systems
 
+## [Change log](CHANGELOG.md)
+
 ## License
 
 Licensed under either of
