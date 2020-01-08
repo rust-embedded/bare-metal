@@ -2,7 +2,8 @@
 
 > Abstractions common to bare metal systems
 
-This project is developed and maintained by the [Tools team][team].
+This project is developed and maintained by the [Cortex-A, Cortex-M, Cortex-R,
+MSP430, and RISCV teams][teams].
 
 ## [Change log](CHANGELOG.md)
 
@@ -25,8 +26,9 @@ dual licensed as above, without any additional terms or conditions.
 ## Code of Conduct
 
 Contribution to this crate is organized under the terms of the [Rust Code of
-Conduct][CoC], the maintainer of this crate, the [Tools team][team], promises
-to intervene to uphold that code of conduct.
+Conduct][CoC], the maintainers of this crate, the [Cortex-A, Cortex-M,
+Cortex-R, MSP430, and RISCV teams][teams], promise to intervene to uphold that
+code of conduct.
 
 [CoC]: CODE_OF_CONDUCT.md
-[team]: https://github.com/rust-embedded/wg#the-tools-team
+[team]: https://github.com/rust-embedded/wg#organization
