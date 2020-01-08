@@ -6,7 +6,7 @@ documentation = "https://docs.rs/bare-metal"
 keywords = ["bare-metal", "register", "peripheral", "interrupt"]
 license = "MIT OR Apache-2.0"
 name = "bare-metal"
-repository = "https://github.com/japaric/bare-metal"
+repository = "https://github.com/rust-embedded/bare-metal"
 version = "0.2.5"
 
 [build-dependencies]
