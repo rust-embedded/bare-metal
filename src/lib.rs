@@ -48,6 +48,7 @@ impl CriticalSection {
     ///
     /// This method is meant to be used to create safe abstractions rather than
     /// meant to be directly used in applications.
+    #[inline(always)]
     pub unsafe fn new() -> Self {
         CriticalSection { _0: () }
     }
