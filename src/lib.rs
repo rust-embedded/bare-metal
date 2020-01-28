@@ -5,6 +5,7 @@
 #![no_std]
 
 use core::cell::UnsafeCell;
+use core::marker::PhantomData;
 
 /// A peripheral
 #[derive(Debug)]
@@ -26,7 +27,7 @@ impl<T> Peripheral<T> {
     }
 
     /// Borrows the peripheral for the duration of a critical section
-    pub fn borrow<'cs>(&self, _ctxt: &'cs CriticalSection) -> &'cs T {
+    pub fn borrow<'cs>(&self, _ctxt: CriticalSection<'cs>) -> &'cs T {
         unsafe { &*self.get() }
     }
 
@@ -39,18 +40,19 @@ impl<T> Peripheral<T> {
 /// Critical section token
 ///
 /// Indicates that you are executing code within a critical section
-pub struct CriticalSection {
-    _0: (),
+#[derive(Clone, Copy)]
+pub struct CriticalSection<'cs> {
+    _0: PhantomData<&'cs ()>,
 }
 
-impl CriticalSection {
+impl<'cs> CriticalSection<'cs> {
     /// Creates a critical section token
     ///
     /// This method is meant to be used to create safe abstractions rather than
     /// meant to be directly used in applications.
     #[inline(always)]
     pub unsafe fn new() -> Self {
-        CriticalSection { _0: () }
+        CriticalSection { _0: PhantomData }
     }
 }
 
@@ -76,13 +78,13 @@ impl<T> Mutex<T> {
 
 impl<T> Mutex<T> {
     /// Borrows the data for the duration of the critical section
-    pub fn borrow<'cs>(&'cs self, _cs: &'cs CriticalSection) -> &'cs T {
+    pub fn borrow<'cs>(&'cs self, _cs: CriticalSection<'cs>) -> &'cs T {
         unsafe { &*self.inner.get() }
     }
 }
 
 /// ``` compile_fail
-/// fn bad(cs: &bare_metal::CriticalSection) -> &u32 {
+/// fn bad(cs: bare_metal::CriticalSection) -> &u32 {
 ///     let x = bare_metal::Mutex::new(42u32);
 ///     x.borrow(cs)
 /// }
