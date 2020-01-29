@@ -8,9 +8,3 @@ license = "MIT OR Apache-2.0"
 name = "bare-metal"
 repository = "https://github.com/rust-embedded/bare-metal"
 version = "0.2.5"
-
-[build-dependencies]
-rustc_version = "0.2.3"
-
-[features]
-const-fn = [] # Unused, but kept for backwards compatibility
