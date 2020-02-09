@@ -9,7 +9,9 @@ use core::marker::PhantomData;
 
 /// Critical section token.
 ///
-/// Indicates that you are executing code within a critical section.
+/// An instance of this type indicates that the current core is executing code within a critical
+/// section. This means that no interrupts must be enabled that could preempt the currently running
+/// code.
 #[derive(Clone, Copy)]
 pub struct CriticalSection<'cs> {
     _0: PhantomData<&'cs ()>,
@@ -18,8 +20,17 @@ pub struct CriticalSection<'cs> {
 impl<'cs> CriticalSection<'cs> {
     /// Creates a critical section token.
     ///
-    /// This method is meant to be used to create safe abstractions rather than
-    /// meant to be directly used in applications.
+    /// This method is meant to be used to create safe abstractions rather than being directly used
+    /// in applications.
+    ///
+    /// # Safety
+    ///
+    /// This must only be called when the current core is in a critical section. The caller must
+    /// ensure that the returned instance will not live beyond the end of the critical section.
+    ///
+    /// Note that the lifetime `'cs` of the returned instance is unconstrained. User code must not
+    /// be able to influence the lifetime picked for this type, since that might cause it to be
+    /// inferred to `'static`.
     #[inline(always)]
     pub unsafe fn new() -> Self {
         CriticalSection { _0: PhantomData }
