@@ -1,4 +1,4 @@
-//! Abstractions common to bare metal systems
+//! Abstractions common to bare metal systems.
 
 #![deny(missing_docs)]
 #![deny(warnings)]
@@ -7,16 +7,16 @@
 use core::cell::UnsafeCell;
 use core::marker::PhantomData;
 
-/// Critical section token
+/// Critical section token.
 ///
-/// Indicates that you are executing code within a critical section
+/// Indicates that you are executing code within a critical section.
 #[derive(Clone, Copy)]
 pub struct CriticalSection<'cs> {
     _0: PhantomData<&'cs ()>,
 }
 
 impl<'cs> CriticalSection<'cs> {
-    /// Creates a critical section token
+    /// Creates a critical section token.
     ///
     /// This method is meant to be used to create safe abstractions rather than
     /// meant to be directly used in applications.
@@ -26,7 +26,7 @@ impl<'cs> CriticalSection<'cs> {
     }
 }
 
-/// A "mutex" based on critical sections
+/// A "mutex" based on critical sections.
 ///
 /// # Safety
 ///
@@ -38,7 +38,7 @@ pub struct Mutex<T> {
 }
 
 impl<T> Mutex<T> {
-    /// Creates a new mutex
+    /// Creates a new mutex.
     pub const fn new(value: T) -> Self {
         Mutex {
             inner: UnsafeCell::new(value),
@@ -47,7 +47,7 @@ impl<T> Mutex<T> {
 }
 
 impl<T> Mutex<T> {
-    /// Borrows the data for the duration of the critical section
+    /// Borrows the data for the duration of the critical section.
     pub fn borrow<'cs>(&'cs self, _cs: CriticalSection<'cs>) -> &'cs T {
         unsafe { &*self.inner.get() }
     }
@@ -67,8 +67,8 @@ unsafe impl<T> Sync for Mutex<T> where T: Send {}
 #[allow(dead_code)]
 const GH_6: () = ();
 
-/// Interrupt number
+/// Interrupt number.
 pub unsafe trait Nr {
-    /// Returns the number associated with an interrupt
+    /// Returns the number associated with an interrupt.
     fn nr(&self) -> u8;
 }
