@@ -53,6 +53,11 @@ impl<T> Mutex<T> {
     }
 }
 
+// NOTE A `Mutex` can be used as a channel so the protected data must be `Send`
+// to prevent sending non-Sendable stuff (e.g. access tokens) across different
+// execution contexts (e.g. interrupts)
+unsafe impl<T> Sync for Mutex<T> where T: Send {}
+
 /// ``` compile_fail
 /// fn bad(cs: bare_metal::CriticalSection) -> &u32 {
 ///     let x = bare_metal::Mutex::new(42u32);
@@ -67,8 +72,3 @@ pub unsafe trait Nr {
     /// Returns the number associated with an interrupt
     fn nr(&self) -> u8;
 }
-
-// NOTE A `Mutex` can be used as a channel so the protected data must be `Send`
-// to prevent sending non-Sendable stuff (e.g. access tokens) across different
-// execution contexts (e.g. interrupts)
-unsafe impl<T> Sync for Mutex<T> where T: Send {}
