@@ -5,11 +5,18 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Breaking Changes
+
+- Use `CriticalSection<'cs>` everywhere instead of `&'cs CriticalSection`
+  (this makes it a zero-sized type).
+- Removed the `const-fn` feature.
+- Removed the `Peripheral` wrapper type.
+
 ## [v0.2.5] - 2019-08-29
 
 ### Changed
 
-- The `const-fn` feature is now stable
+- The `const-fn` feature is now stable.
 
 ## [v0.2.4] - 2018-10-30
 
