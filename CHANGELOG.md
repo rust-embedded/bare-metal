@@ -5,6 +5,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Added the `StaticResource` trait.
+
 ### Breaking Changes
 
 - Use `CriticalSection<'cs>` everywhere instead of `&'cs CriticalSection`
