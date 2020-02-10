@@ -1,4 +1,4 @@
-//! Abstractions common to bare metal systems
+//! Abstractions common to bare metal systems.
 
 #![deny(missing_docs)]
 #![deny(warnings)]
@@ -7,56 +7,37 @@
 use core::cell::UnsafeCell;
 use core::marker::PhantomData;
 
-/// A peripheral
-#[derive(Debug)]
-pub struct Peripheral<T>
-where
-    T: 'static,
-{
-    address: *mut T,
-}
-
-impl<T> Peripheral<T> {
-    /// Creates a new peripheral
-    ///
-    /// `address` is the base address of the register block
-    pub const unsafe fn new(address: usize) -> Self {
-        Peripheral {
-            address: address as *mut T,
-        }
-    }
-
-    /// Borrows the peripheral for the duration of a critical section
-    pub fn borrow<'cs>(&self, _ctxt: CriticalSection<'cs>) -> &'cs T {
-        unsafe { &*self.get() }
-    }
-
-    /// Returns a pointer to the register block
-    pub fn get(&self) -> *mut T {
-        self.address as *mut T
-    }
-}
-
-/// Critical section token
+/// Critical section token.
 ///
-/// Indicates that you are executing code within a critical section
+/// An instance of this type indicates that the current core is executing code within a critical
+/// section. This means that no interrupts must be enabled that could preempt the currently running
+/// code.
 #[derive(Clone, Copy)]
 pub struct CriticalSection<'cs> {
     _0: PhantomData<&'cs ()>,
 }
 
 impl<'cs> CriticalSection<'cs> {
-    /// Creates a critical section token
+    /// Creates a critical section token.
     ///
-    /// This method is meant to be used to create safe abstractions rather than
-    /// meant to be directly used in applications.
+    /// This method is meant to be used to create safe abstractions rather than being directly used
+    /// in applications.
+    ///
+    /// # Safety
+    ///
+    /// This must only be called when the current core is in a critical section. The caller must
+    /// ensure that the returned instance will not live beyond the end of the critical section.
+    ///
+    /// Note that the lifetime `'cs` of the returned instance is unconstrained. User code must not
+    /// be able to influence the lifetime picked for this type, since that might cause it to be
+    /// inferred to `'static`.
     #[inline(always)]
     pub unsafe fn new() -> Self {
         CriticalSection { _0: PhantomData }
     }
 }
 
-/// A "mutex" based on critical sections
+/// A "mutex" based on critical sections.
 ///
 /// # Safety
 ///
@@ -68,7 +49,7 @@ pub struct Mutex<T> {
 }
 
 impl<T> Mutex<T> {
-    /// Creates a new mutex
+    /// Creates a new mutex.
     pub const fn new(value: T) -> Self {
         Mutex {
             inner: UnsafeCell::new(value),
@@ -77,11 +58,16 @@ impl<T> Mutex<T> {
 }
 
 impl<T> Mutex<T> {
-    /// Borrows the data for the duration of the critical section
+    /// Borrows the data for the duration of the critical section.
     pub fn borrow<'cs>(&'cs self, _cs: CriticalSection<'cs>) -> &'cs T {
         unsafe { &*self.inner.get() }
     }
 }
+
+// NOTE A `Mutex` can be used as a channel so the protected data must be `Send`
+// to prevent sending non-Sendable stuff (e.g. access tokens) across different
+// execution contexts (e.g. interrupts)
+unsafe impl<T> Sync for Mutex<T> where T: Send {}
 
 /// ``` compile_fail
 /// fn bad(cs: bare_metal::CriticalSection) -> &u32 {
@@ -92,13 +78,56 @@ impl<T> Mutex<T> {
 #[allow(dead_code)]
 const GH_6: () = ();
 
-/// Interrupt number
+/// Interrupt number.
 pub unsafe trait Nr {
-    /// Returns the number associated with an interrupt
+    /// Returns the number associated with an interrupt.
     fn nr(&self) -> u8;
 }
 
-// NOTE A `Mutex` can be used as a channel so the protected data must be `Send`
-// to prevent sending non-Sendable stuff (e.g. access tokens) across different
-// execution contexts (e.g. interrupts)
-unsafe impl<T> Sync for Mutex<T> where T: Send {}
+/// Trait for static (singleton) resources with managed ownership.
+///
+/// This trait allows application code and libraries to take ownership of resources that exist once
+/// on every core, or once on the entire system.
+///
+/// # Safety
+///
+/// In order to safely implement this trait, the implementor must ensure that:
+/// - A call to `take()` or `steal()` atomically ensures that no further call to `take()` will
+///   succeed. This is commonly accomplished by using a static `AtomicBool` variable and a
+///   compare-and-swap operation or a critical section.
+/// - It is impossible to link multiple crates containing the synchronization state together. This
+///   is usually accomplished by defining a well-known [`links = "..."`][links] key in the
+///   `Cargo.toml`.
+///
+/// [links]: https://doc.rust-lang.org/cargo/reference/build-scripts.html#the-links-manifest-key
+pub unsafe trait StaticResource: Sized {
+    /// Obtains ownership of this resource singleton and makes it unavailable to future callers of
+    /// `take()`.
+    ///
+    /// If `take()` or `steal()` have been called before, this returns `None`.
+    fn take() -> Option<Self>;
+
+    /// Obtains an instance of this resource and makes all future calls to `take()` return `None`.
+    ///
+    /// This will not check if `take()` or `steal()` have already been called before. It is the
+    /// caller's responsibility to use the returned instance in a safe way that does not conflict
+    /// with other instances.
+    ///
+    /// This function is intended to be used when it is statically known that the resource is still
+    /// available (for example, in generated code that runs immediately after reset). It generally
+    /// has lower cost than `take().unwrap()`.
+    unsafe fn steal() -> Self;
+
+    /// Unsafely obtains an instance of this resource.
+    ///
+    /// This will not check if `take()` or `steal()` have already been called before. It is the
+    /// caller's responsibility to use the returned instance in a safe way that does not conflict
+    /// with other instances.
+    ///
+    /// Contrary to `steal()`, `conjure()` will *not* make future calls to `take()` return `None`.
+    ///
+    /// This function can be used to perform operations on a resource, ignoring any current
+    /// ownership of the resource. The safety of this depends on the specific resource, and on the
+    /// operations performed.
+    unsafe fn conjure() -> Self;
+}
