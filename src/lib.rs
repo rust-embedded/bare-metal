@@ -55,9 +55,20 @@ impl<T> Mutex<T> {
             inner: UnsafeCell::new(value),
         }
     }
-}
 
-impl<T> Mutex<T> {
+    /// Gets a mutable reference to the contained value when the mutex is already uniquely borrowed.
+    ///
+    /// This does not require locking or a critical section since it takes `&mut self`, which
+    /// guarantees unique ownership already.
+    pub fn get_mut(&mut self) -> &mut T {
+        unsafe { &mut *self.inner.get() }
+    }
+
+    /// Unwraps the contained value, consuming the mutex.
+    pub fn into_inner(self) -> T {
+        self.inner.into_inner()
+    }
+
     /// Borrows the data for the duration of the critical section.
     pub fn borrow<'cs>(&'cs self, _cs: CriticalSection<'cs>) -> &'cs T {
         unsafe { &*self.inner.get() }
