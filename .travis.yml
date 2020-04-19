@@ -8,6 +8,9 @@ matrix:
       if: (branch = staging OR branch = trying) OR (type = pull_request AND branch = master)
     - rust: nightly
       if: (branch = staging OR branch = trying) OR (type = pull_request AND branch = master)
+    # MSRV
+    - rust: 1.31.0
+      if: (branch = staging OR branch = trying) OR (type = pull_request AND branch = master)
 
 branches:
   only:
