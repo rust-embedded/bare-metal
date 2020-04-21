@@ -89,12 +89,6 @@ unsafe impl<T> Sync for Mutex<T> where T: Send {}
 #[allow(dead_code)]
 const GH_6: () = ();
 
-/// Interrupt number.
-pub unsafe trait Nr {
-    /// Returns the number associated with an interrupt.
-    fn nr(&self) -> u8;
-}
-
 /// Trait for static (singleton) resources with managed ownership.
 ///
 /// This trait allows application code and libraries to take ownership of resources that exist once
