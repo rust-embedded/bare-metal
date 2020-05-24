@@ -6,6 +6,7 @@
 
 use core::cell::UnsafeCell;
 use core::marker::PhantomData;
+use core::sync::atomic::{fence, Ordering};
 
 /// Critical section token.
 ///
@@ -61,6 +62,7 @@ impl<T> Mutex<T> {
     /// This does not require locking or a critical section since it takes `&mut self`, which
     /// guarantees unique ownership already.
     pub fn get_mut(&mut self) -> &mut T {
+        fence(Ordering::SeqCst);
         unsafe { &mut *self.inner.get() }
     }
 
@@ -71,6 +73,7 @@ impl<T> Mutex<T> {
 
     /// Borrows the data for the duration of the critical section.
     pub fn borrow<'cs>(&'cs self, _cs: CriticalSection<'cs>) -> &'cs T {
+        fence(Ordering::SeqCst);
         unsafe { &*self.inner.get() }
     }
 }
