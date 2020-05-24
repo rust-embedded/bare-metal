@@ -3,10 +3,11 @@
 #![deny(missing_docs)]
 #![deny(warnings)]
 #![no_std]
+#![cfg_attr(target = "msp430-none-elf", feature(llvm_asm))]
 
 use core::cell::UnsafeCell;
 use core::marker::PhantomData;
-use core::sync::atomic::{fence, Ordering};
+use core::sync::atomic::{compiler_fence, Ordering};
 
 /// Critical section token.
 ///
@@ -34,6 +35,12 @@ impl<'cs> CriticalSection<'cs> {
     /// inferred to `'static`.
     #[inline(always)]
     pub unsafe fn new() -> Self {
+        #[cfg(not(target = "msp430-none-elf"))]
+        compiler_fence(Ordering::SeqCst);
+
+        #[cfg(target = "msp430-none-elf")]
+        llvm_asm!("":::"memory");
+
         CriticalSection { _0: PhantomData }
     }
 }
@@ -62,7 +69,12 @@ impl<T> Mutex<T> {
     /// This does not require locking or a critical section since it takes `&mut self`, which
     /// guarantees unique ownership already.
     pub fn get_mut(&mut self) -> &mut T {
-        fence(Ordering::SeqCst);
+        #[cfg(not(target = "msp430-none-elf"))]
+        compiler_fence(Ordering::SeqCst);
+
+        #[cfg(target = "msp430-none-elf")]
+        llvm_asm!("":::"memory");
+
         unsafe { &mut *self.inner.get() }
     }
 
@@ -73,7 +85,6 @@ impl<T> Mutex<T> {
 
     /// Borrows the data for the duration of the critical section.
     pub fn borrow<'cs>(&'cs self, _cs: CriticalSection<'cs>) -> &'cs T {
-        fence(Ordering::SeqCst);
         unsafe { &*self.inner.get() }
     }
 }
