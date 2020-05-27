@@ -27,6 +27,8 @@ impl<'cs> CriticalSection<'cs> {
     ///
     /// This must only be called when the current core is in a critical section. The caller must
     /// ensure that the returned instance will not live beyond the end of the critical section.
+    /// Moreover, the caller must use the adequate fences to prevent the compiler from moving the
+    /// instructions inside the critical section to the outside of it.
     ///
     /// Note that the lifetime `'cs` of the returned instance is unconstrained. User code must not
     /// be able to influence the lifetime picked for this type, since that might cause it to be
@@ -59,7 +61,9 @@ impl<T> Mutex<T> {
     /// Gets a mutable reference to the contained value when the mutex is already uniquely borrowed.
     ///
     /// This does not require locking or a critical section since it takes `&mut self`, which
-    /// guarantees unique ownership already.
+    /// guarantees unique ownership already. Care must be taken when using this method to
+    /// **unsafely** access `static mut` variables, appropriate fences must be used to prevent
+    /// unwanted optimizations.
     pub fn get_mut(&mut self) -> &mut T {
         unsafe { &mut *self.inner.get() }
     }
