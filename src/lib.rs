@@ -27,8 +27,9 @@ impl<'cs> CriticalSection<'cs> {
     ///
     /// This must only be called when the current core is in a critical section. The caller must
     /// ensure that the returned instance will not live beyond the end of the critical section.
-    /// Moreover, the caller must use the adequate fences to prevent the compiler from moving the
-    /// instructions inside the critical section to the outside of it.
+    /// Moreover, the caller must use adequate fences to prevent the compiler from moving the
+    /// instructions inside the critical section to the outside of it. Sequentially consistent fences are
+    /// suggested immediately after entry and immediately before exit from the critical section.
     ///
     /// Note that the lifetime `'cs` of the returned instance is unconstrained. User code must not
     /// be able to influence the lifetime picked for this type, since that might cause it to be
