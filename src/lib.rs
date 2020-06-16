@@ -1,7 +1,6 @@
 //! Abstractions common to bare metal systems.
 
 #![deny(missing_docs)]
-#![deny(warnings)]
 #![no_std]
 
 use core::cell::UnsafeCell;
@@ -93,51 +92,3 @@ unsafe impl<T> Sync for Mutex<T> where T: Send {}
 /// ```
 #[allow(dead_code)]
 const GH_6: () = ();
-
-/// Trait for static (singleton) resources with managed ownership.
-///
-/// This trait allows application code and libraries to take ownership of resources that exist once
-/// on every core, or once on the entire system.
-///
-/// # Safety
-///
-/// In order to safely implement this trait, the implementor must ensure that:
-/// - A call to `take()` or `steal()` atomically ensures that no further call to `take()` will
-///   succeed. This is commonly accomplished by using a static `AtomicBool` variable and a
-///   compare-and-swap operation or a critical section.
-/// - It is impossible to link multiple crates containing the synchronization state together. This
-///   is usually accomplished by defining a well-known [`links = "..."`][links] key in the
-///   `Cargo.toml`.
-///
-/// [links]: https://doc.rust-lang.org/cargo/reference/build-scripts.html#the-links-manifest-key
-pub unsafe trait StaticResource: Sized {
-    /// Obtains ownership of this resource singleton and makes it unavailable to future callers of
-    /// `take()`.
-    ///
-    /// If `take()` or `steal()` have been called before, this returns `None`.
-    fn take() -> Option<Self>;
-
-    /// Obtains an instance of this resource and makes all future calls to `take()` return `None`.
-    ///
-    /// This will not check if `take()` or `steal()` have already been called before. It is the
-    /// caller's responsibility to use the returned instance in a safe way that does not conflict
-    /// with other instances.
-    ///
-    /// This function is intended to be used when it is statically known that the resource is still
-    /// available (for example, in generated code that runs immediately after reset). It generally
-    /// has lower cost than `take().unwrap()`.
-    unsafe fn steal() -> Self;
-
-    /// Unsafely obtains an instance of this resource.
-    ///
-    /// This will not check if `take()` or `steal()` have already been called before. It is the
-    /// caller's responsibility to use the returned instance in a safe way that does not conflict
-    /// with other instances.
-    ///
-    /// Contrary to `steal()`, `conjure()` will *not* make future calls to `take()` return `None`.
-    ///
-    /// This function can be used to perform operations on a resource, ignoring any current
-    /// ownership of the resource. The safety of this depends on the specific resource, and on the
-    /// operations performed.
-    unsafe fn conjure() -> Self;
-}
