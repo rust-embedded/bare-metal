@@ -1,5 +1,7 @@
 set -euxo pipefail
 
+export RUSTFLAGS="-D warnings"
+
 main() {
     cargo check --target $TARGET
 
