@@ -91,4 +91,5 @@ unsafe impl<T> Sync for Mutex<T> where T: Send {}
 /// }
 /// ```
 #[allow(dead_code)]
+#[doc(hidden)]
 const GH_6: () = ();
