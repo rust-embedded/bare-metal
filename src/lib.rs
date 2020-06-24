@@ -11,7 +11,7 @@ use core::marker::PhantomData;
 /// An instance of this type indicates that the current core is executing code within a critical
 /// section. This means that no interrupts must be enabled that could preempt the currently running
 /// code.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct CriticalSection<'cs> {
     _0: PhantomData<&'cs ()>,
 }
@@ -46,6 +46,7 @@ impl<'cs> CriticalSection<'cs> {
 /// **This Mutex is only safe on single-core systems.**
 ///
 /// On multi-core systems, a `CriticalSection` **is not sufficient** to ensure exclusive access.
+#[derive(Debug)]
 pub struct Mutex<T> {
     inner: UnsafeCell<T>,
 }
