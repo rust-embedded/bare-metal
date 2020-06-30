@@ -2,6 +2,7 @@
 
 #![deny(missing_docs)]
 #![no_std]
+#![doc(html_root_url="https://docs.rs/bare-metal/1.0")]
 
 use core::cell::UnsafeCell;
 use core::marker::PhantomData;
