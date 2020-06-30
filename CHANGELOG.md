@@ -5,6 +5,11 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+## [v0.2.6] - 2020-07-01
+
+This release in the 0.2 series exists for compatibility with 1.0.0;
+there are no functional changes compared to v0.2.5.
+
 ## [v0.2.5] - 2019-08-29
 
 ### Changed
@@ -66,7 +71,8 @@ YANKED due to a soundness issue: see v0.2.1 for details
 
 - Initial release
 
-[Unreleased]: https://github.com/japaric/bare-metal/compare/v0.2.5...HEAD
+[Unreleased]: https://github.com/japaric/bare-metal/compare/v0.2.6...HEAD
+[v0.2.6]: https://github.com/japaric/bare-metal/compare/v0.2.5...v0.2.6
 [v0.2.5]: https://github.com/japaric/bare-metal/compare/v0.2.4...v0.2.5
 [v0.2.4]: https://github.com/japaric/bare-metal/compare/v0.2.3...v0.2.4
 [v0.2.3]: https://github.com/japaric/bare-metal/compare/v0.2.2...v0.2.3

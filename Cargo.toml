@@ -7,7 +7,10 @@ keywords = ["bare-metal", "register", "peripheral", "interrupt"]
 license = "MIT OR Apache-2.0"
 name = "bare-metal"
 repository = "https://github.com/japaric/bare-metal"
-version = "0.2.5"
+version = "0.2.6"
+
+[dependencies]
+bare-metal = "1.0.0"
 
 [build-dependencies]
 rustc_version = "0.2.3"
