@@ -7,4 +7,5 @@ keywords = ["bare-metal", "register", "peripheral", "interrupt"]
 license = "MIT OR Apache-2.0"
 name = "bare-metal"
 repository = "https://github.com/rust-embedded/bare-metal"
-version = "0.2.5"
+version = "1.0.0"
+readme = "README.md"

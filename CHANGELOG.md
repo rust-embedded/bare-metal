@@ -5,9 +5,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
-### Added
-
-- Added the `StaticResource` trait.
+## [v1.0.0] - 2020-06-23
 
 ### Breaking Changes
 
@@ -77,7 +75,8 @@ YANKED due to a soundness issue: see v0.2.1 for details
 
 - Initial release
 
-[Unreleased]: https://github.com/japaric/bare-metal/compare/v0.2.5...HEAD
+[Unreleased]: https://github.com/japaric/bare-metal/compare/v1.0.0...HEAD
+[v1.0.0]: https://github.com/japaric/bare-metal/compare/v0.2.5...v1.0.0
 [v0.2.5]: https://github.com/japaric/bare-metal/compare/v0.2.4...v0.2.5
 [v0.2.4]: https://github.com/japaric/bare-metal/compare/v0.2.3...v0.2.4
 [v0.2.3]: https://github.com/japaric/bare-metal/compare/v0.2.2...v0.2.3
