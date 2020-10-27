@@ -42,6 +42,7 @@ jobs:
           toolchain: ${{ matrix.rust }}
           override: true
       - name: Install targets
+        shell: bash
         run: rustup target add $TARGETS
         if: matrix.rust == 'stable'
       - name: Run tests
