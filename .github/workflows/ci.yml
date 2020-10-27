@@ -1,0 +1,47 @@
+on:
+  push:
+    branches: [ staging, trying, master ]
+  pull_request:
+
+name: CI
+
+env:
+  # Cross-build targets for CI. For each target architecture, this should include the lowest common
+  # denominator that is still a tier 2 target.
+  TARGETS: thumbv6m-none-eabi armv7a-none-eabi aarch64-unknown-none riscv32i-unknown-none-elf
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental || false }}
+    strategy:
+      matrix:
+        # All code should be running on stable now
+        rust: [stable]
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+
+        include:
+          # Test MSRV
+          - rust: 1.31.0
+            os: ubuntu-latest
+
+          # Test nightly but don't fail
+          - rust: nightly
+            os: ubuntu-latest
+            experimental: true
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: ${{ matrix.rust }}
+          override: true
+      - name: Install targets
+        run: rustup target add $TARGETS
+      - name: Run tests
+        run: cargo test --all
+      - name: Cross-compile
+        run: >
+          for target in $TARGETS; do
+            cargo build --target=$target
+          done

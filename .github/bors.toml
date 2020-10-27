@@ -1,4 +1,10 @@
 block_labels = ["needs-decision"]
 delete_merged_branches = true
 required_approvals = 1
-status = ["continuous-integration/travis-ci/push"]
+status = [
+    "ci (stable, ubuntu-latest)",
+    "ci (stable, macOS-latest)",
+    "ci (stable, windows-latest)",
+    "ci (1.31.0, ubuntu-latest)",
+    "rustfmt",
+]
