@@ -13,6 +13,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
   (this makes it a zero-sized type).
 - Removed the `const-fn` feature.
 - Removed the `Peripheral` wrapper type.
+- Removed the `Nr` trait in favor of architecture-specific traits in downstream crates.
 
 ## [v0.2.5] - 2019-08-29
 
