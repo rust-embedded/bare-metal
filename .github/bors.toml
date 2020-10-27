@@ -7,4 +7,5 @@ status = [
     "ci (stable, windows-latest)",
     "ci (1.31.0, ubuntu-latest)",
     "rustfmt",
+    "clippy",
 ]
