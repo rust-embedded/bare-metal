@@ -4,7 +4,7 @@
 #![no_std]
 #![doc(html_root_url = "https://docs.rs/bare-metal/1.0")]
 
-use core::cell::UnsafeCell;
+use core::cell::{Ref, RefCell, RefMut, UnsafeCell};
 use core::marker::PhantomData;
 
 /// Critical section token.
@@ -47,6 +47,54 @@ impl<'cs> CriticalSection<'cs> {
 /// **This Mutex is only safe on single-core systems.**
 ///
 /// On multi-core systems, a `CriticalSection` **is not sufficient** to ensure exclusive access.
+///
+/// # Design
+///
+/// [`std::sync::Mutex`] has two purposes. It converts types that are [`Send`]
+/// but not [`Sync`] into types that are both; and it provides
+/// [interior mutability]. `bare_metal::Mutex`, on the other hand, only adds
+/// `Sync`. It does *not* provide interior mutability.
+///
+/// This was a conscious design choice. It would not be sound for
+/// [`Mutex::borrow`] to return `&mut T`, because the [`CriticalSection`] token
+/// is [`Copy`], so there is nothing to prevent calling `borrow` multiple times
+/// to create aliased `&mut T` references. However, if the token were *not*
+/// `Copy`, then it would be impossible to access more than one resource inside
+/// a critical section.
+///
+/// The solution is to include a runtime check to ensure that each resource is
+/// borrowed only once. This is what `std::sync::Mutex` does. However, this is
+/// a runtime cost that may not be required in all circumstances. For instance,
+/// `Mutex<Cell<T>>` never needs to create `&mut T` or equivalent.
+///
+/// If `&mut T` is needed, the simplest solution is to use `Mutex<RefCell<T>>`,
+/// which is the closest analogy to `std::sync::Mutex`. [`RefCell`] inserts the
+/// exact runtime check necessary to guarantee that the `&mut T` reference is
+/// unique.
+///
+/// To reduce verbosity when using `Mutex<RefCell<T>>`, we reimplement some of
+/// `RefCell`'s methods on it directly.
+///
+/// ```
+/// # use bare_metal::{CriticalSection, Mutex};
+/// # use std::cell::RefCell;
+///
+/// static FOO: Mutex<RefCell<i32>> = Mutex::new(RefCell::new(42));
+///
+/// fn main() {
+///     let cs = unsafe { CriticalSection::new() };
+///     // Instead of calling this
+///     let _ = FOO.borrow(cs).take();
+///     // Call this
+///     let _ = FOO.take(cs);
+///     // `RefCell::borrow` and `RefCell::borrow_mut` are renamed to
+///     // `borrow_ref` and `borrow_ref_mut` to avoid name collisions
+///     let _: &mut i32 = &mut *FOO.borrow_ref_mut(cs);
+/// }
+/// ```
+///
+/// [`std::sync::Mutex`]: https://doc.rust-lang.org/std/sync/struct.Mutex.html
+/// [interior mutability]: https://doc.rust-lang.org/reference/interior-mutability.html
 #[derive(Debug)]
 pub struct Mutex<T> {
     inner: UnsafeCell<T>,
@@ -78,6 +126,48 @@ impl<T> Mutex<T> {
     /// Borrows the data for the duration of the critical section.
     pub fn borrow<'cs>(&'cs self, _cs: CriticalSection<'cs>) -> &'cs T {
         unsafe { &*self.inner.get() }
+    }
+}
+
+impl<T> Mutex<RefCell<T>> {
+    /// Borrow the data and call [`RefCell::replace`]
+    ///
+    /// This is equivalent to `self.borrow(cs).replace(t)`
+    pub fn replace<'cs>(&'cs self, cs: CriticalSection<'cs>, t: T) -> T {
+        self.borrow(cs).replace(t)
+    }
+
+    /// Borrow the data and call [`RefCell::replace_with`]
+    ///
+    /// This is equivalent to `self.borrow(cs).replace_with(f)`
+    pub fn replace_with<'cs, F>(&'cs self, cs: CriticalSection<'cs>, f: F) -> T
+    where
+        F: FnOnce(&mut T) -> T,
+    {
+        self.borrow(cs).replace_with(f)
+    }
+
+    /// Borrow the data and call [`RefCell::borrow`]
+    ///
+    /// This is equivalent to `self.borrow(cs).borrow()`
+    pub fn borrow_ref<'cs>(&'cs self, cs: CriticalSection<'cs>) -> Ref<'cs, T> {
+        self.borrow(cs).borrow()
+    }
+
+    /// Borrow the data and call [`RefCell::borrow_mut`]
+    ///
+    /// This is equivalent to `self.borrow(cs).borrow_mut()`
+    pub fn borrow_ref_mut<'cs>(&'cs self, cs: CriticalSection<'cs>) -> RefMut<'cs, T> {
+        self.borrow(cs).borrow_mut()
+    }
+}
+
+impl<T: Default> Mutex<RefCell<T>> {
+    /// Borrow the data and call [`RefCell::take`]
+    ///
+    /// This is equivalent to `self.borrow(cs).take()`
+    pub fn take<'cs>(&'cs self, cs: CriticalSection<'cs>) -> T {
+        self.borrow(cs).take()
     }
 }
 
