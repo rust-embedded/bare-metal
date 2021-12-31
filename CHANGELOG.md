@@ -5,6 +5,9 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+- Added inherent `impl` block for `Mutex<RefCell<T>>` to help reduce verbosity
+- Increased MSRV to 1.50.0
+
 ## [v1.0.0] - 2020-06-23
 
 ### Breaking Changes
