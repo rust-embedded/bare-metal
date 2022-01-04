@@ -55,12 +55,11 @@ impl<'cs> CriticalSection<'cs> {
 /// [interior mutability]. `bare_metal::Mutex`, on the other hand, only adds
 /// `Sync`. It does *not* provide interior mutability.
 ///
-/// This was a conscious design choice. It would not be sound for
-/// [`Mutex::borrow`] to return `&mut T`, because the [`CriticalSection`] token
-/// is [`Copy`], so there is nothing to prevent calling `borrow` multiple times
-/// to create aliased `&mut T` references. However, if the token were *not*
-/// `Copy`, then it would be impossible to access more than one resource inside
-/// a critical section.
+/// This was a conscious design choice. It is possible to create multiple
+/// [`CriticalSection`] tokens, either by nesting critical sections or `Copy`ing
+/// an existing token. As a result, it would not be sound for [`Mutex::borrow`]
+/// to return `&mut T`, because there would be nothing to prevent calling
+/// `borrow` multiple times to create aliased `&mut T` references.
 ///
 /// The solution is to include a runtime check to ensure that each resource is
 /// borrowed only once. This is what `std::sync::Mutex` does. However, this is
@@ -102,6 +101,7 @@ pub struct Mutex<T> {
 
 impl<T> Mutex<T> {
     /// Creates a new mutex.
+    #[inline]
     pub const fn new(value: T) -> Self {
         Mutex {
             inner: UnsafeCell::new(value),
@@ -114,16 +114,19 @@ impl<T> Mutex<T> {
     /// guarantees unique ownership already. Care must be taken when using this method to
     /// **unsafely** access `static mut` variables, appropriate fences must be used to prevent
     /// unwanted optimizations.
+    #[inline]
     pub fn get_mut(&mut self) -> &mut T {
         unsafe { &mut *self.inner.get() }
     }
 
     /// Unwraps the contained value, consuming the mutex.
+    #[inline]
     pub fn into_inner(self) -> T {
         self.inner.into_inner()
     }
 
     /// Borrows the data for the duration of the critical section.
+    #[inline]
     pub fn borrow<'cs>(&'cs self, _cs: CriticalSection<'cs>) -> &'cs T {
         unsafe { &*self.inner.get() }
     }
@@ -133,6 +136,7 @@ impl<T> Mutex<RefCell<T>> {
     /// Borrow the data and call [`RefCell::replace`]
     ///
     /// This is equivalent to `self.borrow(cs).replace(t)`
+    #[inline]
     pub fn replace<'cs>(&'cs self, cs: CriticalSection<'cs>, t: T) -> T {
         self.borrow(cs).replace(t)
     }
@@ -140,6 +144,7 @@ impl<T> Mutex<RefCell<T>> {
     /// Borrow the data and call [`RefCell::replace_with`]
     ///
     /// This is equivalent to `self.borrow(cs).replace_with(f)`
+    #[inline]
     pub fn replace_with<'cs, F>(&'cs self, cs: CriticalSection<'cs>, f: F) -> T
     where
         F: FnOnce(&mut T) -> T,
@@ -150,6 +155,7 @@ impl<T> Mutex<RefCell<T>> {
     /// Borrow the data and call [`RefCell::borrow`]
     ///
     /// This is equivalent to `self.borrow(cs).borrow()`
+    #[inline]
     pub fn borrow_ref<'cs>(&'cs self, cs: CriticalSection<'cs>) -> Ref<'cs, T> {
         self.borrow(cs).borrow()
     }
@@ -157,6 +163,7 @@ impl<T> Mutex<RefCell<T>> {
     /// Borrow the data and call [`RefCell::borrow_mut`]
     ///
     /// This is equivalent to `self.borrow(cs).borrow_mut()`
+    #[inline]
     pub fn borrow_ref_mut<'cs>(&'cs self, cs: CriticalSection<'cs>) -> RefMut<'cs, T> {
         self.borrow(cs).borrow_mut()
     }
@@ -166,6 +173,7 @@ impl<T: Default> Mutex<RefCell<T>> {
     /// Borrow the data and call [`RefCell::take`]
     ///
     /// This is equivalent to `self.borrow(cs).take()`
+    #[inline]
     pub fn take<'cs>(&'cs self, cs: CriticalSection<'cs>) -> T {
         self.borrow(cs).take()
     }
