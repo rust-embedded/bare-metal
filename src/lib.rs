@@ -136,6 +136,11 @@ impl<T> Mutex<RefCell<T>> {
     /// Borrow the data and call [`RefCell::replace`]
     ///
     /// This is equivalent to `self.borrow(cs).replace(t)`
+    ///
+    /// # Panics
+    ///
+    /// This call could panic. See the documentation for [`RefCell::replace`]
+    /// for more details.
     #[inline]
     #[track_caller]
     pub fn replace<'cs>(&'cs self, cs: CriticalSection<'cs>, t: T) -> T {
@@ -145,6 +150,11 @@ impl<T> Mutex<RefCell<T>> {
     /// Borrow the data and call [`RefCell::replace_with`]
     ///
     /// This is equivalent to `self.borrow(cs).replace_with(f)`
+    ///
+    /// # Panics
+    ///
+    /// This call could panic. See the documentation for
+    /// [`RefCell::replace_with`] for more details.
     #[inline]
     #[track_caller]
     pub fn replace_with<'cs, F>(&'cs self, cs: CriticalSection<'cs>, f: F) -> T
@@ -157,6 +167,11 @@ impl<T> Mutex<RefCell<T>> {
     /// Borrow the data and call [`RefCell::borrow`]
     ///
     /// This is equivalent to `self.borrow(cs).borrow()`
+    ///
+    /// # Panics
+    ///
+    /// This call could panic. See the documentation for [`RefCell::borrow`]
+    /// for more details.
     #[inline]
     #[track_caller]
     pub fn borrow_ref<'cs>(&'cs self, cs: CriticalSection<'cs>) -> Ref<'cs, T> {
@@ -166,6 +181,11 @@ impl<T> Mutex<RefCell<T>> {
     /// Borrow the data and call [`RefCell::borrow_mut`]
     ///
     /// This is equivalent to `self.borrow(cs).borrow_mut()`
+    ///
+    /// # Panics
+    ///
+    /// This call could panic. See the documentation for [`RefCell::borrow_mut`]
+    /// for more details.
     #[inline]
     #[track_caller]
     pub fn borrow_ref_mut<'cs>(&'cs self, cs: CriticalSection<'cs>) -> RefMut<'cs, T> {
@@ -177,6 +197,11 @@ impl<T: Default> Mutex<RefCell<T>> {
     /// Borrow the data and call [`RefCell::take`]
     ///
     /// This is equivalent to `self.borrow(cs).take()`
+    ///
+    /// # Panics
+    ///
+    /// This call could panic. See the documentation for [`RefCell::take`]
+    /// for more details.
     #[inline]
     #[track_caller]
     pub fn take<'cs>(&'cs self, cs: CriticalSection<'cs>) -> T {
