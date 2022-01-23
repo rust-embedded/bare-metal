@@ -137,6 +137,7 @@ impl<T> Mutex<RefCell<T>> {
     ///
     /// This is equivalent to `self.borrow(cs).replace(t)`
     #[inline]
+    #[track_caller]
     pub fn replace<'cs>(&'cs self, cs: CriticalSection<'cs>, t: T) -> T {
         self.borrow(cs).replace(t)
     }
@@ -145,6 +146,7 @@ impl<T> Mutex<RefCell<T>> {
     ///
     /// This is equivalent to `self.borrow(cs).replace_with(f)`
     #[inline]
+    #[track_caller]
     pub fn replace_with<'cs, F>(&'cs self, cs: CriticalSection<'cs>, f: F) -> T
     where
         F: FnOnce(&mut T) -> T,
@@ -156,6 +158,7 @@ impl<T> Mutex<RefCell<T>> {
     ///
     /// This is equivalent to `self.borrow(cs).borrow()`
     #[inline]
+    #[track_caller]
     pub fn borrow_ref<'cs>(&'cs self, cs: CriticalSection<'cs>) -> Ref<'cs, T> {
         self.borrow(cs).borrow()
     }
@@ -164,6 +167,7 @@ impl<T> Mutex<RefCell<T>> {
     ///
     /// This is equivalent to `self.borrow(cs).borrow_mut()`
     #[inline]
+    #[track_caller]
     pub fn borrow_ref_mut<'cs>(&'cs self, cs: CriticalSection<'cs>) -> RefMut<'cs, T> {
         self.borrow(cs).borrow_mut()
     }
@@ -174,6 +178,7 @@ impl<T: Default> Mutex<RefCell<T>> {
     ///
     /// This is equivalent to `self.borrow(cs).take()`
     #[inline]
+    #[track_caller]
     pub fn take<'cs>(&'cs self, cs: CriticalSection<'cs>) -> T {
         self.borrow(cs).take()
     }
