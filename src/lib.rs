@@ -214,6 +214,11 @@ impl<T: Default> Mutex<RefCell<T>> {
 // execution contexts (e.g. interrupts)
 unsafe impl<T> Sync for Mutex<T> where T: Send {}
 
+/// In this test, the compiler will implicitly assign the produced reference's lifetime to cs
+/// (consequently, it is checked that the caller provides a sufficiently long-lived cs). However,
+/// the mutex itself is short-lived, and this tests that the &self does actually live as long as
+/// the critical section (which here it does not, causing compilation failure):
+///
 /// ``` compile_fail
 /// fn bad(cs: bare_metal::CriticalSection) -> &u32 {
 ///     let x = bare_metal::Mutex::new(42u32);
@@ -222,4 +227,4 @@ unsafe impl<T> Sync for Mutex<T> where T: Send {}
 /// ```
 #[allow(dead_code)]
 #[doc(hidden)]
-const GH_6: () = ();
+const DOCTEST_ANCHOR: () = ();
