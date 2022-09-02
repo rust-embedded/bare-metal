@@ -8,4 +8,8 @@ license = "MIT OR Apache-2.0"
 name = "bare-metal"
 repository = "https://github.com/rust-embedded/bare-metal"
 version = "1.0.0"
+edition = "2018"
 readme = "README.md"
+
+[dependencies]
+critical-section = "1.0"

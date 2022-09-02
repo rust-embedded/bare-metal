@@ -5,7 +5,7 @@ status = [
     "ci (stable, ubuntu-latest)",
     "ci (stable, macOS-latest)",
     "ci (stable, windows-latest)",
-    "ci (1.50.0, ubuntu-latest)",
+    "ci (1.54.0, ubuntu-latest)",
     "rustfmt",
     "clippy",
 ]
