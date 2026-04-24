@@ -2,7 +2,11 @@
 
 > Abstractions common to bare metal systems
 
-This project is developed and maintained by the [Cortex-A, Cortex-M, Cortex-R,
+**This crate has been deprecated and archived, and it is not recommended for use in new projects.**
+
+**For `Mutex` and `CriticalSection`, see the [critical-section](https://crates.io/crates/critical-section) crate instead.**
+
+This project was developed and maintained by the [Cortex-A, Cortex-M, Cortex-R,
 MSP430, and RISCV teams][teams].
 
 ## [Change log](CHANGELOG.md)
